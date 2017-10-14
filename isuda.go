@@ -489,6 +489,9 @@ func main() {
 	g.Methods("GET").HandlerFunc(myHandler(registerHandler))
 	g.Methods("POST").HandlerFunc(myHandler(registerPostHandler))
 
+	g := r.PathPrefix("/hogehoge").Subrouter()
+	g.Methods("GET").HandlerFunc(myHandler(registerHandler))
+
 	k := r.PathPrefix("/keyword/{keyword}").Subrouter()
 	k.Methods("GET").HandlerFunc(myHandler(keywordByKeywordHandler))
 	k.Methods("POST").HandlerFunc(myHandler(keywordByKeywordDeleteHandler))
