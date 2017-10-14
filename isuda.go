@@ -17,6 +17,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"log"
 
 	"github.com/Songmu/strrand"
 	_ "github.com/go-sql-driver/mysql"
@@ -254,14 +255,21 @@ func keywordByKeywordHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Println("hello log")
+
 	keyword := mux.Vars(r)["keyword"]
 	row := db.QueryRow(`SELECT * FROM entry WHERE keyword = ?`, keyword)
 	e := Entry{}
+
+	log.Println("hello log")
 	err := row.Scan(&e.ID, &e.AuthorID, &e.Keyword, &e.Description, &e.UpdatedAt, &e.CreatedAt)
 	if err == sql.ErrNoRows {
 		notFound(w)
 		return
 	}
+
+	log.Println("hello log")
+
 	e.Html = htmlify(w, r, e.Description)
 	e.Stars = loadStars(e.Keyword)
 
@@ -390,6 +398,16 @@ func getSession(w http.ResponseWriter, r *http.Request) *sessions.Session {
 }
 
 func main() {
+	f, err := os.OpenFile("./production.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+
+  if err != nil {
+      log.Fatal("error opening file :", err.Error())
+  }
+
+  log.SetOutput(f)
+
+  log.Println("hello log")
+
 	host := os.Getenv("ISUDA_DB_HOST")
 	if host == "" {
 		host = "localhost"
