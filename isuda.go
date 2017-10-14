@@ -254,23 +254,19 @@ func keywordByKeywordHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("hello log")
-
 	keyword := mux.Vars(r)["keyword"]
 
-	log.Println(keyword)
-	
-	row := db.QueryRow(`SELECT * FROM entry WHERE keyword = ?`, keyword)
-	e := Entry{}
+	key, err := url.QueryUnescape(keyword)
+	panicIf(err)
 
+	row := db.QueryRow(`SELECT * FROM entry WHERE keyword = ?`, key)
+	e := Entry{}
 
 	err := row.Scan(&e.ID, &e.AuthorID, &e.Keyword, &e.Description, &e.UpdatedAt, &e.CreatedAt)
 	if err == sql.ErrNoRows {
 		notFound(w)
 		return
 	}
-
-	log.Println("hello log")
 
 	e.Html = htmlify(w, r, e.Description)
 	e.Stars = loadStars(e.Keyword)
